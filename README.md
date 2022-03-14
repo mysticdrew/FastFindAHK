@@ -1,7 +1,8 @@
 # FastFindAHK
 FastFind ported to autohotkey
 
-This is a straight up port to AHK
+Currently Untested just a straight port, feel free to PR any fixes/updates.
+
 FastFind details can be found here. 
 Use the provided download link to get the dll and other required files. 
 
