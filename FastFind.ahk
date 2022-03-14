@@ -6,7 +6,6 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ;get things started!
 global FF := new FastFind()
-FF.InitFFDll()
 
 /*
 	#cs ----------------------------------------------------------------------------
@@ -103,8 +102,8 @@ Class FastFind {
 	DLL_NAME := "FastFind64.dll"
 	LastFileNameParam := ""
 	
-	InitFFDll() {
-		FFDllHandle := DllCall("LoadLibrary", "Str", DLL_NAME, "Ptr") 
+	__New() {
+		FFDllHandle := DllCall("LoadLibrary", "Str", "FastFind64.dll", "Ptr") 
 		this.FFSetDebugMode(FFDefautDebugMode)
 	}
 	
@@ -161,10 +160,9 @@ Class FastFind {
 		DllCall($FFDllHandle, "none", "SetHWnd", "HWND", WindowHandle, "BOOLEAN", ClientOnly)
 	}
 	
-	
 	; Choose the Default SnapShot that will by used in the next operations. This avoid to specify the number of the SnapShot every time when you always work on the same
 	FFSetDefaultSnapShot(NewSnapShot) {
-		FFDefaultSnapShot = NewSnapShot
+		FFDefaultSnapShot := NewSnapShot
 	}
 	
 		; Managing the list of colors
@@ -177,10 +175,10 @@ Class FastFind {
 		local res
 		if (isArray(NewColor)) {
 			for i, color in NewColor {
-				res = DllCall(FFDllHandle, "int", "AddColor", "int", Color)
+				res := DllCall(FFDllHandle, "int", "AddColor", "int", Color)
 			}
 		} else {
-			res = DllCall(FFDllHandle, "int", "AddColor", "int", NewColor)
+			res := DllCall(FFDllHandle, "int", "AddColor", "int", NewColor)
 		}
 		
 		if(isArray(res)) {
@@ -194,7 +192,7 @@ Class FastFind {
 	;
 	; Proto C function: int RemoveColor (int newColor)
 	FFRemoveColor(OldColor) {
-		local $res = DllCall(FFDllHandle, "int", "RemoveColor", "int", OldColor)
+		local $res := DllCall(FFDllHandle, "int", "RemoveColor", "int", OldColor)
 		if(isArray(res)) {
 			return res[0]
 		} 
@@ -221,7 +219,7 @@ Class FastFind {
 	;
 	; Proto C function: void WINAPI AddExcludedArea (int x1, int y1, int x2, int y2)
 	FFAddExcludedArea(x1, y1, x2, y2) {
-		local res = DllCall(FFDllHandle, "int", "AddExcludedArea", "int", x1, "int", y1, "int", x2, "int", y2)
+		local res := DllCall(FFDllHandle, "int", "AddExcludedArea", "int", x1, "int", y1, "int", x2, "int", y2)
 		if(isArray(res)) {
 			return res[0]
 		} 
@@ -239,7 +237,7 @@ Class FastFind {
 	;
 	; Proto C function: bool WINAPI IsExcluded(int x, int y, HWND hWnd)
 	FFIsExcluded(x, y, hWnd) {
-		local res = DllCall(FFDllHandle, "BOOLEAN", "IsExcluded", "int", x, "int", y, "HWND", hWnd)
+		local res := DllCall(FFDllHandle, "BOOLEAN", "IsExcluded", "int", x, "int", y, "HWND", hWnd)
 		if(isArray(res)) {
 			return res[0]
 		} 
@@ -265,7 +263,7 @@ Class FastFind {
 	FFSnapShot(aLeft := 0, aTop := 0, aRight := 0, aBottom := 0, NoSnapShot := "", WindowHandle := -1) {
 		local res
 		if (!NoSnapShot) {
-			NoSnapShot = FFDefaultSnapShot
+			NoSnapShot := FFDefaultSnapShot
 		}
 		
 		if (WindowHandle != -1) {
@@ -273,20 +271,20 @@ Class FastFind {
 		} 
 		
 		FFDefaultSnapShot = NoSnapShot ; Store the number of the SnapShot used, it will remain the default SnapShop for the next calls
-		res = DllCall(FFDllHandle, "int", "SnapShot", "int", aLeft, "int", aTop, "int", aRight, "int", aBottom, "int", NoSnapShot)
+		res := DllCall(FFDllHandle, "int", "SnapShot", "int", aLeft, "int", aTop, "int", aRight, "int", aBottom, "int", NoSnapShot)
 		
 		If (((!isArray(res)) && (res = 0)) || res[0] = 0) {
 			return False
 		}
 		
-		FFLastSnapStatus[NoSnapShot] = 1
-		FFLastSnap = NoSnapShot
+		FFLastSnapStatus[NoSnapShot] := 1
+		FFLastSnap := NoSnapShot
 		return True
 	}
 	
 	; Internal Function, don't use it directly
 	SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle) { 
-		;If you impose a new capture or if SnapShot is valid, this effect will be effective for N °
+		;If you impose a new capture or if SnapShot is valid, this effect will be effective for N Â°
 		if (ForceNewSnap || FFLastSnapStatus[NoSnapShot] != 1) { 
 			return this.FFSnapShot(Left, Top, Right, Bottom, NoSnapShot, WindowHandle)
 		} 
@@ -308,7 +306,7 @@ Class FastFind {
 		local result
 		local coordResult
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			Return False
@@ -335,7 +333,7 @@ Class FastFind {
 		local result
 		local coordResult
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			Return False
@@ -366,7 +364,7 @@ Class FastFind {
 		local result
 		local coordResult
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			Return False
@@ -375,7 +373,7 @@ Class FastFind {
 		If (!isArray(result) || result[0] != 1) {
 			Return False
 		}
-		coordResult[3] = [Result[4], Result[5], Result[2]] ; PosX, PoxY, Nombre de pixels
+		coordResult[3] := [Result[4], Result[5], Result[2]] ; PosX, PoxY, Nombre de pixels
 		return coordResult
 	}
 	
@@ -385,7 +383,7 @@ Class FastFind {
 	FFColorCount(ColorToCount,  ShadeVariation := 0, ForceNewSnap := true, Left := 0, Top := 0, Right := 0, Bottom := 0, NoSnapShot := "", WindowHandle := -1) {
 		local result
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			Return False
@@ -421,7 +419,7 @@ Class FastFind {
 	; Proto C : int WINAPI LocalizeChanges(int NoSnapShot, int NoSnapShot2, int &xMin, int &yMin, int &xMax, int &yMax, int &nbFound, int ShadeVariation);  // ** Changed in version 2.0 : ShadeVariation added **
 	FFLocalizeChanges(NoSnapShot1, NoSnapShot2, ShadeVariation := 0) {
 		local TabRes
-		local Result = DllCall(FFDllHandle, "int", "LocalizeChanges", "int", NoSnapShot1, "int", NoSnapShot2, "int*", 0, "int*", 0, "int*", 0, "int*", 0, "int*", 0, "int" , ShadeVariation )
+		local Result := DllCall(FFDllHandle, "int", "LocalizeChanges", "int", NoSnapShot1, "int", NoSnapShot2, "int*", 0, "int*", 0, "int*", 0, "int*", 0, "int*", 0, "int" , ShadeVariation )
 		If ((!isArray(Result)) || Result[0] != 1) {
 			Return False
 		}
@@ -435,9 +433,10 @@ Class FastFind {
 	; Proto C : int WINAPI FFgetPixel(int X, int Y, int NoSnapShot)
 	FFGetPixel(x, y, NoSnapShot := "") {
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
-		Result = DllCall(FFDllHandle, "int", "FFGetPixel", "int", x, "int", y, "int", NoSnapShot)
+		Result := DllCall(FFDllHandle, "int", "FFGetPixel", "int", x, "int", y, "int", NoSnapShot)
+		
 		If ( (!isArray(Result)) || (Result[0] = -1) ) {
 			Return -1
 		}
@@ -448,7 +447,7 @@ Class FastFind {
 	;
 	; Proto C : LPCTSTR WINAPI FFVersion(void)
 	FFGetVersion() {
-		Result = DllCall(FFDllHandle, "str", "FFVersion")
+		Result := DllCall(FFDllHandle, "str", "FFVersion")
 		If ((!isArray(Result))) {
 			
 			Return "???"
@@ -460,7 +459,7 @@ Class FastFind {
 	;
 	; Proto C : LPCTSTR WINAPI GetLastErrorMsg(void)
 	FFGetLastError() {
-		Result = DllCall(FFDllHandle, "str", "GetLastErrorMsg")
+		Result := DllCall(FFDllHandle, "str", "GetLastErrorMsg")
 		If ((!isArray(Result))) {
 			
 			Return ""
@@ -474,17 +473,17 @@ Class FastFind {
 		local Suffix
 		local Result
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			
 			Return False
 		}
-		Result = DllCall(FFDllHandle, "BOOLEAN", "SaveBMP", "int", NoSnapShot, "str", FileNameWithNoExtension)
+		Result := DllCall(FFDllHandle, "BOOLEAN", "SaveBMP", "int", NoSnapShot, "str", FileNameWithNoExtension)
 		If ((!isArray(Result)) || Result[0] != 1) {
 			Return False
 		}
-		Suffix = DllCall(FFDllHandle, "int", "GetLastFileSuffix")
+		Suffix := DllCall(FFDllHandle, "int", "GetLastFileSuffix")
 		If (isArray(Result)) {
 			If (Result[0]>0) {
 				LastFileNameParam = FileNameWithNoExtension+".BMP"
@@ -501,22 +500,22 @@ Class FastFind {
 		local Suffix
 		local Result
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			
 			Return False
 		}
-		Result = DllCall(FFDllHandle, "BOOLEAN", "SaveJPG", "int", NoSnapShot, "str", FileNameWithNoExtension, "ULONG", QualityFactor)
+		Result := DllCall(FFDllHandle, "BOOLEAN", "SaveJPG", "int", NoSnapShot, "str", FileNameWithNoExtension, "ULONG", QualityFactor)
 		If ((!isArray(Result)) || Result[0] != 1) {
 			Return False
 		}
 		Suffix = DllCall(FFDllHandle, "int", "GetLastFileSuffix")
 		If (isArray(Result)) {
 			If (Result[0]>0) {
-				LastFileNameParam = FileNameWithNoExtension+".JPG"
+				LastFileNameParam := FileNameWithNoExtension+".JPG"
 			} Else {
-				LastFileNameParam = FileNameWithNoExtension+"_"+Result[0]+".JPG"
+				LastFileNameParam := FileNameWithNoExtension+"_"+Result[0]+".JPG"
 			}
 		}
 		return true
@@ -530,10 +529,10 @@ Class FastFind {
 	; Change a SnapShot so that it keeps only the pixels that are different from another SnapShot.
 	; modified by frank10
 	; Exemple :
-	;   FFSnapShot(0, 0, 0, 0, 1) ; Takes FullScreen SnapShot N°1
+	;   FFSnapShot(0, 0, 0, 0, 1) ; Takes FullScreen SnapShot NÂ°1
 	;   Sleep(1000)				  ; Wait 1 second
-	;   FFSnapShot(0, 0, 0, 0, 2) ; Takes another SnapShot (N°2)
-	;   FFKeepChanges(1, 2, 8)       ; SnapShot N°1 will have all pixels black, except those that have changed between the 2 SnapShots with a shadevariation of 8. SnapShot N°2 is kept unchanged.
+	;   FFSnapShot(0, 0, 0, 0, 2) ; Takes another SnapShot (NÂ°2)
+	;   FFKeepChanges(1, 2, 8)       ; SnapShot NÂ°1 will have all pixels black, except those that have changed between the 2 SnapShots with a shadevariation of 8. SnapShot NÂ°2 is kept unchanged.
 	;   FFSaveBMP("snapshot", false, 0,0,0,0, 1) ; Saves the result into snapshot.bmp
 	;
 	;Prototype : int WINAPI KeepChanges(int NoSnapShot, int NoSnapShot2, int ShadeVariation);  // ** Changed in version 2.0 : ShadeVariation added **
@@ -547,19 +546,19 @@ Class FastFind {
 	
 	; Change a SnapShot so that it keeps only the color (or colors if a list is used) asked. All other pixels will be black.
 	; Exemple :
-	;   FFSnapShot(0, 0, 0, 0, 1) ; Takes FullScreen SnapShot N°1
+	;   FFSnapShot(0, 0, 0, 0, 1) ; Takes FullScreen SnapShot NÂ°1
 	;   Sleep(1000)				  ; Wait 1 second
-	;   FFSnapShot(0, 0, 0, 0, 2) ; Takes another SnapShot (N°2)
-	;   FFKeepChanges(1, 2)       ; SnapShot N°1 will have all pixels black, except those that have changed between the 2 SnapShots. SnapShot N°2 is kept unchanged.
+	;   FFSnapShot(0, 0, 0, 0, 2) ; Takes another SnapShot (NÂ°2)
+	;   FFKeepChanges(1, 2)       ; SnapShot NÂ°1 will have all pixels black, except those that have changed between the 2 SnapShots. SnapShot NÂ°2 is kept unchanged.
 	;   FFResetColors()           ; Rest of the list of colors
 	;   local Couleurs[2]=[0x00FF0000, 0x000000FF] ; Pure blue and pure red
 	;   FFAddColor(Couleurs)
-	;   FFKeepColor(-1, 60, false, 0,0,0,0, 1, -1) ;  As the SnapShot N°1 now has only very few pixels (only changes), we can now make de detection with very high ShadeVariation value
-	;                                              ;  After this step, the SnapShot N°1 will only have blue and red pixels left.
+	;   FFKeepColor(-1, 60, false, 0,0,0,0, 1, -1) ;  As the SnapShot NÂ°1 now has only very few pixels (only changes), we can now make de detection with very high ShadeVariation value
+	;                                              ;  After this step, the SnapShot NÂ°1 will only have blue and red pixels left.
 	;Prototype : int WINAPI KeepColor(int NoSnapShot, int ColorToFind, int ShadeVariation);
 	FFKeepColor(ColorToFind, ShadeVariation := 0, ForceNewSnap := true, Left := 0, Top := 0, Right := 0, Bottom := 0, NoSnapShot := "", WindowHandle := -1) {
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (!this.SnapShotPreProcessor(Left, Top, Right, Bottom, ForceNewSnap, NoSnapShot, WindowHandle)) {
 			
@@ -577,7 +576,7 @@ Class FastFind {
 	; Proto C: bool WINAPI DrawSnapShot(int NoSnapShot);
 	FFDrawSnapShot(NoSnapShot := "") {
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (FFLastSnapStatus[NoSnapShot] != 1) {
 			Return False
@@ -594,12 +593,12 @@ Class FastFind {
 	;bool WINAPI FFSetPixel(int x, int y, int Color, int NoSnapShot);
 	FFSetPixel(x, y, Color, NoSnapShot := "") {
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (FFLastSnapStatus[NoSnapShot] != 1) {
 			Return False
 		}
-		Result = DllCall(FFDllHandle, "BOOLEAN", "FFSetPixel", "int", x, "int", y, "int", Color, "int", NoSnapShot)
+		Result := DllCall(FFDllHandle, "BOOLEAN", "FFSetPixel", "int", x, "int", y, "int", Color, "int", NoSnapShot)
 		If ((!isArray(Result)) || Result[0] != 1) {
 			Return False
 		}
@@ -613,7 +612,7 @@ Class FastFind {
 			
 			Return False
 		}
-		Result = DllCall(FFDllHandle, "BOOLEAN", "DuplicateSnapShot", "int", NoSnapShotSrc, "int", NoSnapShotDst)
+		Result := DllCall(FFDllHandle, "BOOLEAN", "DuplicateSnapShot", "int", NoSnapShotSrc, "int", NoSnapShotDst)
 		If ((!isArray(Result)) || Result[0] != 1) {
 			Return False
 		}
@@ -626,18 +625,18 @@ Class FastFind {
 	; Success: 	it returns a string stride with the Raw bytes of the SnapShot in 8 Hex digits (BGRA) of pixels from left to right, top to bottom
 	;           every pixel can be accessed like this:   StringMid(sStride, pixelNo *8 +1  ,8)  and you get 685E5B00 68blue 5Egreen 5Bred 00alpha
 	;Proto C: int * WINAPI GetRawData(int NoSnapShot, int &NbBytes);
-	FFGetRawData(NoSnapShot := "") {
-		Local t_Raw
-		Local sStrid
-		aResult = DllCall(FFDllHandle, "ptr", "GetRawData", "int", NoSnapShot, "int*", 0)
-		If ( !isArray(aResult) ) {
-			Return False
-		}
-		t_Raw  = DllStructCreate('ubyte['&  aResult[2]  &  ']',aResult[0])
-		sStride = DllStructGetData(t_Raw, 1)
-		sStride = StringRight(sStride,StringLen(sStride)-2)
-		Return sStride
-	}
+	;FFGetRawData(NoSnapShot := "") {
+	;	Local t_Raw
+	;	Local sStrid
+	;	aResult = DllCall(FFDllHandle, "ptr", "GetRawData", "int", NoSnapShot, "int*", 0)
+	;	If ( !isArray(aResult) ) {
+	;		Return False
+	;;	}
+	;	t_Raw  := DllStructCreate("ubyte["aResult[2]"]",aResult[0])
+	;	sStride := DllStructGetData(t_Raw, 1)
+	;	sStride := StringRight(sStride,StringLen(sStride)-2)
+	;	Return sStride
+	;}
 	
 	; FFComputeMeanValues Function - Gives mean Red, Green and Blue values, useful for detecting changed areas
 	; Wrapper made by frank10
@@ -650,13 +649,13 @@ Class FastFind {
 	FFComputeMeanValues(NoSnapShot := "") {
 		local MeanResult
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
-		aResult = DllCall(FFDllHandle, "int", "ComputeMeanValues", "int", NoSnapShot, "int*", 0, "int*", 0, "int*", 0)
+		aResult := DllCall(FFDllHandle, "int", "ComputeMeanValues", "int", NoSnapShot, "int*", 0, "int*", 0, "int*", 0)
 		If ( !isArray(aResult) OR aResult[0] != 1) {
 			Return False
 		}
-		MeanResult[3] = [aResult[2], aResult[3], aResult[4]] ; MeanRed, MeanGreen, MeanBlue
+		MeanResult[3] := [aResult[2], aResult[3], aResult[4]] ; MeanRed, MeanGreen, MeanBlue
 		return MeanResult
 	}
 	
@@ -667,7 +666,7 @@ Class FastFind {
 	;Proto C : int WINAPI ApplyFilterOnSnapShot(int NoSnapShot, int Red, int Green, int Blue); // ** New in version 2.0 **
 	FFApplyFilterOnSnapShot(Red, Green, Blue, NoSnapShot := "") {
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		aResult = DllCall(FFDllHandle, "int", "ApplyFilterOnSnapShot", "int", NoSnapShot, "int", Red, "int", Green, "int", Blue)
 		If ( !isArray(aResult) OR aResult[0] != 1) {
@@ -683,13 +682,13 @@ Class FastFind {
 	;Proto C : bool WINAPI DrawSnapShotXY(int NoSnapShot, int X, int Y); // ** New in version 2.0 **
 	FFDrawSnapShotXY(iX, iY, NoSnapShot := "") {
 		if (!NoSnapShot) {
-			NoSnapShot = FFLastSnap
+			NoSnapShot := FFLastSnap
 		}
 		if (FFLastSnapStatus[NoSnapShot] != 1) {
 			
 			Return False
 		}
-		Result = DllCall(FFDllHandle, "BOOLEAN", "DrawSnapShotXY", "int", NoSnapShot, "int", iX, "int", iY)
+		Result:== DllCall(FFDllHandle, "BOOLEAN", "DrawSnapShotXY", "int", NoSnapShot, "int", iX, "int", iY)
 		If ((!isArray(Result)) || Result[0] != 1) {
 			Return False
 		}
