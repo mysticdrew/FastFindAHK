@@ -1,4 +1,4 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
@@ -37,7 +37,7 @@ Progress,30, GetPixel direct DllCall
 FF.FFSnapShot() ; To keep it simple, a FullScreen capture here
 begin22 := TimerInit()
 Loop, 3000 {
-	DllCall(FFDllHandle, "int", "FFGetPixel", "int", %A_Index%, "int", 500, "int", FFLastSnap)
+	DllCall("FastFind64\FFGetPixel", "int", %A_Index%, "int", 500, "int", FFLastSnap)
 }
 dif22 := TimerDiff(begin22)
 
@@ -110,16 +110,16 @@ dif7 := TimerDiff(begin7)
 
 
 Progress, Off
-var1 := TimeSpan(%dif%,100)
-var2 := TimeSpan(%dif1%,100)
-var3 := TimeSpan(%dif2%,2000)
-var4 := TimeSpan(%dif22%,3000)
-var5 := TimeSpan(%dif3%,100)
-var6 := TimeSpan(%dif4%,100)
-var7 := TimeSpan(%dif5%,500)
-var8 := TimeSpan(%dif52%, 200)
-var9 := TimeSpan(%dif6%,100)
-var10 := TimeSpan(%dif7%,100)
+var1 := TimeSpan(dif,100)
+var2 := TimeSpan(dif1,100)
+var3 := TimeSpan(dif2,2000)
+var4 := TimeSpan(dif22,3000)
+var5 := TimeSpan(dif3,100)
+var6 := TimeSpan(dif4,100)
+var7 := TimeSpan(dif5,500)
+var8 := TimeSpan(dif52,200)
+var9 := TimeSpan(dif6,100)
+var10 := TimeSpan(dif7,100)
 MsgBox Elpased time for :`n`nPixelGetColor%var1%`nFullScreen PixelSearch with ShadeVariation%var2%`n`nFFGetPixel%var3%`nSame with direct dllCall%var4%`n`nSnapShot 10x10 area %var5%`nFullSreen SnapShot%var6%`nSimple Pixel Searches in 200x200 area%var7%`nPixel Searches with ShadeVariation in FullScreen%var8%`nComplexe FullScreen searches (20x20 Spot, List of 5 colors with ShadeVariation and 3 excluded rectangles)%var9%`nSame as before, but searches best spot containing from 2 to 50 good pixels (FFBestSpot)%var10%
 ;MsgBox Elpased time for :`n`nPixelGetColor TimeSpan(%dif%,100)
 TimerInit() {
@@ -133,8 +133,8 @@ TimerDiff(StartTime) {
 TimeSpan(dif, Nb) {
 	res := (dif / 1000)/Nb
 	if (res >= 0.010) { 
-		return " = "Round(res*1000)" mS (" Nb " runs):" dif
+		return " = "Round(res*1000)" mS (" Nb " runs):"
 	} Else {
-		return " = "Round(res*1000000)" nS (" Nb " runs)" dif
+		return " = "Round(res*1000000)" nS (" Nb " runs)"
 	}
 }
