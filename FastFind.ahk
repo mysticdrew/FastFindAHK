@@ -157,8 +157,9 @@ Class FastFind {
 	; If ClientOnly = False, then the full Window will be used.
 	;
 	; Proto C function: void SetHWnd(HWND NewWindowHandle, bool bClientArea);
-	FFSetWnd(WindowHandle, ClientOnly = True) {
-		DllCall("FastFind64\SetHWnd", "HWND", WindowHandle, "BOOLEAN", ClientOnly)
+	FFSetWnd(WindowHandle, ClientOnly := True) {
+		local clnt := ClientOnly ? 1 : 0
+		DllCall("FastFind64\SetHWnd", "Ptr", WindowHandle, "int", clnt)
 	}
 	
 	; Choose the Default SnapShot that will by used in the next operations. This avoid to specify the number of the SnapShot every time when you always work on the same
@@ -238,7 +239,7 @@ Class FastFind {
 	;
 	; Proto C function: bool WINAPI IsExcluded(int x, int y, HWND hWnd)
 	FFIsExcluded(x, y, hWnd) {
-		local res := DllCall("FastFind64\IsExcluded", "int", x, "int", y, "HWND", hWnd)
+		local res := DllCall("FastFind64\IsExcluded", "int", x, "int", y, "Ptr", hWnd)
 		if(isArray(res)) {
 			return res[0]
 		} 
